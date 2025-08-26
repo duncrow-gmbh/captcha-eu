@@ -1,0 +1,39 @@
+<?php 
+use Symfony\Component\HttpFoundation\Request;
+use \Contao\System; 
+$GLOBALS['TL_JAVASCRIPT'][] = 'https://www.captcha.eu/sdk.js';
+
+$this->extend('form_row'); ?>
+
+<?php $this->block('field');
+?>
+
+<?php 
+if (!System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest(System::getContainer()->get('request_stack')->getCurrentRequest() ?? Request::create(''))){
+?>
+    <?php if ($this->hasErrors()): ?>
+        <p class="error"><?= $this->getErrorAsString() ?></p>
+    <?php endif; ?>
+    <div id="dc-captcha-eu-checker" class="cpt_widget" data-key="<?= $this->publicKey ?>" data-theme="clean">
+    <?php if($this->recaptchaType == 'widget') { ?> 
+        <script>
+           KROT.init();
+        </script>
+    <?php } else{ ?>
+        <script>
+            KROT.setup("<?= $this->publicKey ?>");
+
+            let checker = document.getElementById('dc-captcha-eu-checker')?.closest('form'); 
+            KROT.interceptForm(checker);
+        </script>
+    <?php 
+        } 
+    } else{
+     ?>
+<span>Captcha-Eu <br><i><?= $GLOBALS['TL_LANG']['tl_form_field']['howTo'] ?> </i></span>
+
+     <?php
+    }
+     ?>
+<?php $this->endblock(); ?>
+
