@@ -1,6 +1,3 @@
-
-![Logo](docs/images/logo.png)
-
 # captcha-eu
 
 ## Description
