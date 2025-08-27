@@ -1,23 +1,24 @@
 # captcha-eu
 
 ## Description
-Mit unserem Captcha.eu-Plugin machst du deine Contao-Webseite ein gutes Stück sicherer. In nur wenigen Klicks bindest du den DSGVO-konformen Captcha-Dienst von Captcha.eu in deine Formulare ein und schützt dich zuverlässig vor Spam und Bots. Die Einrichtung erfolgt direkt im Contao Backend – einfach, schnell und ohne komplizierte Konfiguration.
-Damit deine Seite nicht nur professionell aussieht, sondern auch bestens geschützt ist, brauchst du lediglich ein Konto bzw. einen passenden Plan bei Captcha.eu. Alle weiteren Informationen und Preisdetails findest du unter https://www.captcha.eu/
-
+With our Captcha.eu plugin, you can make your Contao website a lot more secure. In just a few clicks, you can integrate Captcha.eu's GDPR-compliant captcha service into your forms and reliably protect yourself against spam and bots. Setup is done directly in the Contao backend – simple, fast and without complicated configuration.
+To ensure that your site not only looks professional but is also well protected, all you need is an account or a suitable plan with Captcha.eu. You can find all further information and pricing details at https://www.captcha.eu/.
 
 ## Installation
 
-Installation des Bundles via Composer:
+Installing the bundle via Composer:
 
 ```
 composer require duncrow-gmbh/captcha-eu
 ```
-Oder via Contao Manager: https://packagist.org/packages/duncrow-gmbh/captcha-eu
+Or via Contao Manager: https://packagist.org/packages/duncrow-gmbh/captcha-eu
 
-Das vorhandene Formularfeld Sicherheitsabfrage wird erweitert mit der Option "Verwende CaptchaEu". 
-Den Lizenzkey kann unter Seiten - Startpunkt einer Website - Einstellungen - Captcha EU eingestellt werden.
+The existing security query form field is expanded with the option ‘Use CaptchaEu’. The licence key can be set under Pages - Website start point - Settings - Captcha EU.
+
+## Store license in the ‘Root’ page tree:
+![](docs/images/image1.png)
+
 ![](docs/images/image3.png)
 
-## Images
-![](docs/images/image1.png)
+## Activate the plugin in your form.
 ![](docs/images/image2.png)
