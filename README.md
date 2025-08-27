@@ -7,11 +7,12 @@ Damit deine Seite nicht nur professionell aussieht, sondern auch bestens geschü
 
 ## Installation
 
-Install the bundle via Composer:
+Installation des Bundles via Composer:
 
 ```
 composer require duncrow-gmbh/captcha-eu
 ```
+Oder via Contao Manager: https://packagist.org/packages/duncrow-gmbh/captcha-eu
 
 Das vorhandene Formularfeld Sicherheitsabfrage wird erweitert mit der Option "Verwende CaptchaEu". 
 Den Lizenzkey kann unter Seiten - Startpunkt einer Website - Einstellungen - Captcha EU eingestellt werden.
