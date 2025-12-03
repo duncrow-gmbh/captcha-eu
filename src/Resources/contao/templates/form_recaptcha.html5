@@ -11,10 +11,10 @@ $this->extend('form_row'); ?>
 <?php 
 if (!System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest(System::getContainer()->get('request_stack')->getCurrentRequest() ?? Request::create(''))){
 ?>
-    <?php if ($this->hasErrors()): ?>
+    <?php if ($this->hasErrors()){ ?>
         <p class="error"><?= $this->getErrorAsString() ?></p>
-    <?php endif; ?>
-    <div id="dc-captcha-eu-checker" class="cpt_widget" data-key="<?= $this->publicKey ?>" data-theme="clean">
+    <?php } ?>
+    <div id="dc-captcha-eu-checker" class="cpt_widget" data-key="<?= $this->publicKey ?>" data-theme="clean"></div>
     <?php if($this->recaptchaType == 'widget') { ?> 
         <script>
            KROT.init();
