@@ -43,7 +43,14 @@ class FormCaptchaEu extends FormCaptcha
             function checkSolution($solution, $privateKey) {
                 $ch = curl_init("https://www.captcha.eu/validate");
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $solution);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Rest-Key: '.$privateKey));
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                    'Content-Type: application/json', 
+                    'Rest-Key: '.$privateKey,
+                    'X-Partner-ID: duncrow',
+                    'X-Platform: contao',
+                    'X-Plugin: duncrow-gmbh-captcha-eu',
+                    'X-Plugin-Version: 1.0.0',
+                ));
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 $result = curl_exec($ch);
                 curl_close($ch);
