@@ -1,82 +1,96 @@
 <?php
+
+declare(strict_types=1);
+
 namespace DuncrowGmbh\CaptchaEu\Form;
 
+use Contao\FormCaptcha;
 use Contao\Input;
 use Contao\PageModel;
-use Contao\FormCaptcha;
+use Contao\System;
+use DuncrowGmbh\CaptchaEu\CaptchaEu\CaptchaEuClient;
+use DuncrowGmbh\CaptchaEu\CaptchaEu\CaptchaEuCsp;
+use DuncrowGmbh\CaptchaEu\CaptchaEu\CaptchaEuKeys;
 
+/**
+ * Replaces the core captcha form field. If "Use Captcha.eu" is enabled and the website root has
+ * Captcha.eu keys, the captcha.eu check is used, otherwise the default Contao captcha.
+ *
+ * The template (form_captcha_eu.html.twig) gets all non-private properties of this class.
+ */
 class FormCaptchaEu extends FormCaptcha
 {
-    protected $strTemplate = 'form_recaptcha';
-    protected $recaptchaType = 'invisible';
-    protected $publicKey = null;
-    protected $privateKey = null;
+    protected $strTemplate = 'form_captcha_eu';
 
-    public function __construct($arrAttributes = null) 
+    protected string $recaptchaType = 'invisible';
+
+    protected string|null $publicKey = null;
+
+    protected string|null $privateKey = null;
+
+    // Nonces of the Content Security Policy (null if the website does not use the Contao CSP)
+    protected string|null $cspScriptNonce = null;
+
+    protected string|null $cspStyleNonce = null;
+
+    public function __construct($arrAttributes = null)
     {
         parent::__construct($arrAttributes);
-        if(isset($GLOBALS['objPage'])){
-            $rootId = $GLOBALS['objPage']->rootId; 
-            $rootPage = PageModel::findByPk($rootId);
-            $this->recaptchaType = $this->useCaptchaEuWidget ? 'widget' : 'invisible' ; 
-            $this->publicKey =  $rootPage->captchaEuPublicKey; 
-            $this->privateKey = $rootPage->captchaEuPrivateKey;
-        }
-        if($this->useCaptchaEu){
 
-        }else if ($this->useFallback()) {
+        $request = System::getContainer()->get('request_stack')->getCurrentRequest();
+        $page = $request?->attributes->get('pageModel');
+        $isFrontend = $page instanceof PageModel;
+
+        if ($isFrontend) {
+            $rootPage = PageModel::findById($page->rootId);
+            $this->recaptchaType = $this->useCaptchaEuWidget ? 'widget' : 'invisible';
+            $keys = System::getContainer()->get(CaptchaEuKeys::class);
+            $this->publicKey = $rootPage ? $keys->getPublicKey($rootPage) : null;
+            $this->privateKey = $rootPage ? $keys->getRestKey($rootPage) : null;
+        }
+
+        // In the front end, the default captcha must be rendered whenever it is also validated (e.g. missing keys).
+        // In the back end, the Captcha.eu template shows the configuration hint instead.
+        if (!$this->useCaptchaEu || ($isFrontend && $this->useFallback())) {
             $this->strTemplate = 'form_captcha';
         }
-
     }
 
-    protected function useFallback()
+    public function parse($arrAttributes = null)
     {
-        return !$this->publicKey || !$this->privateKey || !$this->useCaptchaEu;
+        // Allow the Captcha.eu SDK in the Content Security Policy of the page
+        if (!$this->useFallback()) {
+            ['script' => $this->cspScriptNonce, 'style' => $this->cspStyleNonce] = System::getContainer()->get(CaptchaEuCsp::class)->allow();
+        }
+
+        return parent::parse($arrAttributes);
     }
 
-    public function validate()
+    public function validate(): void
     {
-        if ($this->useFallback()) return parent::validate();
-        
-        try {
-            function checkSolution($solution, $privateKey) {
-                $ch = curl_init("https://www.captcha.eu/validate");
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $solution);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                    'Content-Type: application/json', 
-                    'Rest-Key: '.$privateKey,
-                    'X-Partner-ID: duncrow',
-                    'X-Platform: contao',
-                    'X-Plugin: duncrow-gmbh-captcha-eu',
-                    'X-Plugin-Version: 1.0.0',
-                ));
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                $result = curl_exec($ch);
-                curl_close($ch);
-          
-                $resultObject = json_decode($result);
-                if ($resultObject->success) {
-                  return true;
-                } else {
-                  return false;
-                }
-              }
-              $solution = html_entity_decode((Input::post('captcha_at_solution') ?? Input::post('captcha_at_hidden_field')) ) ; // $_POST["captcha_at_solution"];
-              $valid = checkSolution($solution, $this->privateKey);
+        if ($this->useFallback()) {
+            parent::validate();
 
-              if (!$valid ) {
-                    $this->class = 'error';
-                    $this->addError($GLOBALS['TL_LANG']['ERR']['catpchaEu']);
-                }else{
-                    // return true; 
-                }
+            return;
+        }
 
-        } catch (\Exception $e) {
+        // The solution is only forwarded to captcha.eu (never output), so the unfiltered value is used
+        $solution = Input::postUnsafeRaw('captcha_at_solution') ?? Input::postUnsafeRaw('captcha_at_hidden_field');
+        $solution = \is_string($solution) ? $solution : '';
+
+        if (!$this->getClient()->validate($solution, (string) $this->privateKey)) {
             $this->class = 'error';
             $this->addError($GLOBALS['TL_LANG']['ERR']['catpchaEu']);
         }
     }
-    
 
+    protected function useFallback(): bool
+    {
+        return !$this->publicKey || !$this->privateKey || !$this->useCaptchaEu;
+    }
+
+    private function getClient(): CaptchaEuClient
+    {
+        return System::getContainer()->get(CaptchaEuClient::class);
+    }
 }

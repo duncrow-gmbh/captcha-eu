@@ -1,0 +1,30 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # Hooks (#[AsHook]), event listeners (#[AsEventListener]) and controllers (#[Route]) are configured via attributes
+    DuncrowGmbh\CaptchaEu\:
+        resource: ../src/
+        exclude:
+            - ../src/ContaoManager/
+            - ../src/Form/
+            - ../src/DuncrowGmbhCaptchaEuBundle.php
+
+    # Public, because the legacy form widget fetches them from the container
+    DuncrowGmbh\CaptchaEu\CaptchaEu\CaptchaEuClient:
+        public: true
+
+    DuncrowGmbh\CaptchaEu\CaptchaEu\CaptchaEuKeys:
+        public: true
+
+    DuncrowGmbh\CaptchaEu\CaptchaEu\CaptchaEuCsp:
+        public: true
+
+    DuncrowGmbh\CaptchaEu\EmailDisguise\PayloadCrypt:
+        arguments:
+            $secret: '%kernel.secret%'
+
+    DuncrowGmbh\CaptchaEu\EmailDisguise\VerificationToken:
+        arguments:
+            $secret: '%kernel.secret%'

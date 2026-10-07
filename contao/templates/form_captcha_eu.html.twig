@@ -1,0 +1,38 @@
+{% extends '@Contao/form_row.html.twig' %}
+
+{#
+    Captcha.eu form field. Besides the widget data ("this"), the template gets:
+     - publicKey:       Captcha.eu public key of the website root
+     - recaptchaType:   "widget" (visible robot widget) or "invisible"
+     - cspScriptNonce:  script nonce of the Content Security Policy (null if not enabled)
+     - cspStyleNonce:   style nonce for the inline styles of the Captcha.eu SDK (null if not enabled)
+#}
+
+{% block field %}
+    {% if as_editor_view %}
+        <span>Captcha.eu<br><i>{{ 'tl_form_field.howTo'|trans({}, 'contao_tl_form_field')|raw }}</i></span>
+    {% else %}
+        {% if hasErrors.invoke() %}
+            <p class="error">{{ getErrorAsString.invoke() }}</p>
+        {% endif %}
+
+        {# The settings must be loaded before the SDK, which reads them when it starts #}
+        {% add 'captcha_eu_form' to body %}
+            <script{{ attrs()
+                .set('src', asset('captcha-eu-settings.js', 'duncrow_gmbh_captcha_eu'))
+                .setIfExists('nonce', cspScriptNonce|default)
+                .setIfExists('data-csp-nonce', cspStyleNonce|default)
+            }}></script>
+            <script{{ attrs().set('src', 'https://www.captcha.eu/sdk.js').setIfExists('nonce', cspScriptNonce|default) }}></script>
+            <script{{ attrs().set('src', asset('captcha-eu-form.js', 'duncrow_gmbh_captcha_eu')).setIfExists('nonce', cspScriptNonce|default) }}></script>
+        {% endadd %}
+
+        <div{{ attrs()
+            .set('id', 'dc-captcha-eu-checker-' ~ this.id)
+            .addClass('cpt_widget dc-captcha-eu-checker')
+            .set('data-key', publicKey)
+            .set('data-theme', 'clean')
+            .set('data-captcha-eu-mode', recaptchaType)
+        }}></div>
+    {% endif %}
+{% endblock %}

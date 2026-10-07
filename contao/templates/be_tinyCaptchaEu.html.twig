@@ -1,0 +1,11 @@
+{#
+    TinyMCE configuration with the "Disguise e-mail (Captcha.eu)" link button. Extends the
+    (possibly customized) default configuration, see RichTextEditorListener.
+#}
+{% extends '@Contao/be_tinyMCE.html.twig' %}
+
+{% block custom %}
+    {{ parent() }}
+    external_plugins: { captchaeu: '{{ asset('tinymce-captcha-eu.js', 'duncrow_gmbh_captcha_eu')|e('js') }}' },
+    captchaeu_label: '{{ 'MSC.captchaEuDisguiseToggle'|trans({}, 'contao_default')|e('js') }}',
+{% endblock %}

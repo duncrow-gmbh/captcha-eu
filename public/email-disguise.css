@@ -1,0 +1,55 @@
+.captcha-eu-mailhide {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    text-decoration: underline dotted;
+    text-underline-offset: .2em;
+}
+
+.captcha-eu-mailhide:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+.captcha-eu-mailhide__icon {
+    margin-right: .25em;
+    vertical-align: -.125em;
+    color: #3390d6;
+}
+
+.captcha-eu-mailhide[data-state="loading"] {
+    cursor: progress;
+}
+
+.captcha-eu-mailhide[data-state="loading"]::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    width: 1.5em;
+    height: 2px;
+    background: #81bfe7;
+    animation: captcha-eu-mailhide-slide 1.2s ease-in-out infinite alternate;
+}
+
+.captcha-eu-mailhide[data-state="error"] .captcha-eu-mailhide__status {
+    display: block;
+    font-size: .85em;
+    color: #c0392b;
+}
+
+.captcha-eu-mailhide__status:empty {
+    display: none;
+}
+
+@keyframes captcha-eu-mailhide-slide {
+    from { left: 0; }
+    to { left: calc(100% - 1.5em); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .captcha-eu-mailhide[data-state="loading"]::after {
+        animation: none;
+        width: 100%;
+    }
+}
